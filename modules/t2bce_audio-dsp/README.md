@@ -12,26 +12,32 @@ license is included with each profile.
 
 Supported profiles:
 
-- `MacBookAir8,1` -> `8_1`
-- `MacBookAir8,2` -> `8_2`
-- `MacBookAir9,1` -> `9_1`
-- `MacBookPro15,1` -> `15_1`
-- `MacBookPro15,4` -> `15_4`
-- `MacBookPro16,1` -> `16_1`
-- `MacBookPro16,2` -> `16_2`
-- `MacBookPro16,3` -> `16_3`
-- `MacBookPro16,4` -> `16_4`
+- `MacBookAir8,1`
+- `MacBookAir8,2`
+- `MacBookAir9,1`
+- `MacBookPro15,1`
+- `MacBookPro15,4`
+- `MacBookPro16,1`
+- `MacBookPro16,2`
+- `MacBookPro16,3`
+- `MacBookPro16,4`
 
 The installer copies the matching files to:
 
 ```text
-/usr/share/kait2en/audio-dsp/<profile>/
+/usr/share/apple-t2-dsp/<profile>/
 ```
 
-It generates a WirePlumber configuration at:
+It installs a generic WirePlumber configuration at:
 
 ```text
-/etc/wireplumber/wireplumber.conf.d/51-kait2en-t2-dsp.conf
+/etc/wireplumber/wireplumber.conf.d/51-apple-t2-dsp.conf
+```
+
+The selected model is exposed through a `current` symlink at:
+
+```text
+/usr/share/apple-t2-dsp/current
 ```
 
 The graph target is rewritten at install time to match the detected Apple T2

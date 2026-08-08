@@ -14,29 +14,39 @@ WP_CONF="$WP_CONF_DIR/51-apple-t2-dsp.conf"
 WP_SCRIPT_DIR="/usr/share/wireplumber/scripts/device"
 
 DSP_PACKAGES=(
-	pipewire
-	pipewire-pulseaudio
-	wireplumber
-	pipewire-module-filter-chain-lv2
-	lv2-bankstown
-	lv2-triforce
-	lsp-plugins-lv2
-	lv2-swh-plugins
+    pipewire
+    pipewire-pulseaudio
+    wireplumber
+    pipewire-module-filter-chain-lv2
+    lv2-bankstown
+    lv2-triforce
+    lsp-plugins-lv2
+    lv2-swh-plugins
 )
 
 model_dir_for_product() {
-	case "$1" in
-		MacBookAir8,1) printf '%s\n' "8_1" ;;
-		MacBookAir8,2) printf '%s\n' "8_2" ;;
-		MacBookAir9,1) printf '%s\n' "9_1" ;;
-		MacBookPro15,1) printf '%s\n' "15_1" ;;
-		MacBookPro15,4) printf '%s\n' "15_4" ;;
-		MacBookPro16,1) printf '%s\n' "16_1" ;;
-		MacBookPro16,2) printf '%s\n' "16_2" ;;
-		MacBookPro16,3) printf '%s\n' "16_3" ;;
-		MacBookPro16,4) printf '%s\n' "16_4" ;;
-		*) return 1 ;;
-	esac
+    case "$1" in
+        MacBookAir8,1|MacBookAir8,2|MacBookAir9,1|
+        MacBookPro15,1|MacBookPro15,4|
+        MacBookPro16,1|MacBookPro16,2|MacBookPro16,3|MacBookPro16,4)
+            printf '%s\n' "$1" ;;
+        *)
+            return 1 ;;
+    esac
+}
+
+legacy_model_dir_for_product() {
+    case "$1" in
+        MacBookAir8,1) printf '%s\n' "8_1" ;;
+        MacBookAir8,2) printf '%s\n' "8_2" ;;
+        MacBookAir9,1) printf '%s\n' "9_1" ;;
+        MacBookPro15,1) printf '%s\n' "15_1" ;;
+        MacBookPro15,4) printf '%s\n' "15_4" ;;
+        MacBookPro16,1) printf '%s\n' "16_1" ;;
+        MacBookPro16,2) printf '%s\n' "16_2" ;;
+        MacBookPro16,3) printf '%s\n' "16_3" ;;
+        MacBookPro16,4) printf '%s\n' "16_4" ;;
+    esac
 }
 
 apple_t2_audio_pci_tag() {
@@ -141,7 +151,8 @@ speaker_sink="alsa_output.pci-${pci_tag}.HiFi__Speaker__sink"
 speaker_target="alsa_output.hw_Audio_0"
 mic_source="alsa_input.pci-${pci_tag}.HiFi__Mic__source"
 dst_dir="$DSP_DST_BASE/$model_dir"
-old_audio_root="/usr/share/t2-linux-audio/$model_dir"
+legacy_model_dir="$(legacy_model_dir_for_product "$product_name")"
+old_audio_root="/usr/share/t2-linux-audio/$legacy_model_dir"
 
 info "installing audio DSP for $product_name ($model_dir)"
 dnf install -y "${DSP_PACKAGES[@]}"
