@@ -8,9 +8,9 @@ require_fedora
 require_command basename cp dnf find id install mktemp rm runuser sed systemctl
 
 DSP_SRC="$REPO_ROOT/modules/t2bce_audio-dsp/firs"
-DSP_DST_BASE="/usr/share/kait2en/audio-dsp"
+DSP_DST_BASE="/usr/share/apple-t2-dsp"
 WP_CONF_DIR="/etc/wireplumber/wireplumber.conf.d"
-WP_CONF="$WP_CONF_DIR/51-kait2en-t2-dsp.conf"
+WP_CONF="$WP_CONF_DIR/51-apple-t2-dsp.conf"
 WP_SCRIPT_DIR="/usr/share/wireplumber/scripts/device"
 
 DSP_PACKAGES=(

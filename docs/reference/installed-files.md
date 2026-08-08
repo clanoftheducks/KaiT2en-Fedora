@@ -97,8 +97,8 @@ rule on these models: `MacBookAir8,1`, `MacBookAir8,2`, `MacBookAir9,1`,
 `MacBookPro16,3` and `MacBookPro16,4`.
 
 ```text
-/usr/share/kait2en/audio-dsp/<profile>/
-/etc/wireplumber/wireplumber.conf.d/51-kait2en-t2-dsp.conf
+/usr/share/apple-t2-dsp/<profile>/
+/etc/wireplumber/wireplumber.conf.d/51-apple-t2-dsp.conf
 ```
 
 Every other model exits the DSP step without creating these files.
