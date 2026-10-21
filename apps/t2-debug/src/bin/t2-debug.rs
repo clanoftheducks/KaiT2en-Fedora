@@ -91,12 +91,25 @@ impl ProcObject {
     }
 }
 
+fn install_quit_accelerator(app: &adw::Application) {
+    let quit_action = gtk4::gio::SimpleAction::new("quit", None);
+    let app_weak = app.downgrade();
+    quit_action.connect_activate(move |_, _| {
+        if let Some(app) = app_weak.upgrade() {
+            app.quit();
+        }
+    });
+    app.add_action(&quit_action);
+    app.set_accels_for_action("app.quit", &["<Control>q"]);
+}
+
 fn main() -> glib::ExitCode {
     register_embedded_resources();
     let app = adw::Application::builder()
         .application_id(APP_ID)
         .resource_base_path("/org/t2debug/gtk")
         .build();
+    install_quit_accelerator(&app);
     app.connect_startup(|_| install_palette());
     app.connect_activate(build_ui);
     app.run()

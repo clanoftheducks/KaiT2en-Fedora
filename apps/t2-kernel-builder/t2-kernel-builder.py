@@ -6,6 +6,7 @@ import signal
 import shutil
 import subprocess
 import threading
+import weakref
 import time
 import urllib.request
 import uuid
@@ -66,6 +67,20 @@ SECTION_HELP = {
     "Builder data": ("Builder data", "Delete the cache and downloaded kernel sources for selected versions. Keep entries that you want to build again without downloading and preparing their sources."),
 }
 
+def install_quit_accelerator(app):
+    app_ref = weakref.ref(app)
+    quit_action = Gio.SimpleAction.new("quit", None)
+
+    def quit_application(*_args):
+        application = app_ref()
+        if application is not None:
+            application.quit()
+
+    quit_action.connect("activate", quit_application)
+    app.add_action(quit_action)
+    app.set_accels_for_action("app.quit", ["<Control>q"])
+
+
 class KconfigItem(GObject.Object):
     def __init__(self, node):
         super().__init__(); self.node = node
@@ -88,6 +103,8 @@ def palette_css(dark):
 class KernelBuilder(Adw.Application):
     def __init__(self):
         super().__init__(application_id=APP_ID)
+        install_quit_accelerator(self)
+
         self.connect("activate", self.activate)
         self.process = None
         self.running = False

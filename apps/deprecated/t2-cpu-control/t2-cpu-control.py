@@ -5,13 +5,14 @@ import signal
 import statistics
 import subprocess
 import threading
+import weakref
 import time
 from collections import deque
 
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, GdkPixbuf, GLib, Gtk, Pango
+from gi.repository import Adw, Gio, Gdk, GdkPixbuf, GLib, Gtk, Pango
 
 APP_ID = "org.t2cpucontrol.gtk"
 APP_VERSION = "0.02"
@@ -87,6 +88,20 @@ def read_status():
     return data
 
 
+def install_quit_accelerator(app):
+    app_ref = weakref.ref(app)
+    quit_action = Gio.SimpleAction.new("quit", None)
+
+    def quit_application(*_args):
+        application = app_ref()
+        if application is not None:
+            application.quit()
+
+    quit_action.connect("activate", quit_application)
+    app.add_action(quit_action)
+    app.set_accels_for_action("app.quit", ["<Control>q"])
+
+
 class HistoryGraph(Gtk.DrawingArea):
     def __init__(self, title, unit, colors, fixed_max=None, line_width=1.8):
         super().__init__()
@@ -153,6 +168,8 @@ class HistoryGraph(Gtk.DrawingArea):
 class CpuControl(Adw.Application):
     def __init__(self):
         super().__init__(application_id=APP_ID)
+        install_quit_accelerator(self)
+
         self.connect("activate", self.activate)
         self.data = {}
         self.history_power = deque(maxlen=HISTORY)

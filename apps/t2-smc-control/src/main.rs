@@ -980,6 +980,18 @@ fn rebuild_sensor_rows(
     }
 }
 
+fn install_quit_accelerator(app: &adw::Application) {
+    let quit_action = gtk4::gio::SimpleAction::new("quit", None);
+    let app_weak = app.downgrade();
+    quit_action.connect_activate(move |_, _| {
+        if let Some(app) = app_weak.upgrade() {
+            app.quit();
+        }
+    });
+    app.add_action(&quit_action);
+    app.set_accels_for_action("app.quit", &["<Control>q"]);
+}
+
 fn main() {
     if let Some(result) = handle_cli_args() {
         if let Err(err) = result {
@@ -995,6 +1007,7 @@ fn main() {
         .resource_base_path("/org/t2smccontrol/gtk")
         .build();
 
+    install_quit_accelerator(&app);
     app.connect_activate(|app| {
         install_palette();
         let hwmon = Rc::new(RefCell::new(find_hwmon()));

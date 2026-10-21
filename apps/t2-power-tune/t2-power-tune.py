@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-import json, os, subprocess, threading
+import json, os, subprocess, threading, weakref
 import gi
 gi.require_version("Gtk","4.0"); gi.require_version("Adw","1")
-from gi.repository import Adw, Gdk, GdkPixbuf, GLib, Gtk
+from gi.repository import Adw, Gio, Gdk, GdkPixbuf, GLib, Gtk
 
 APP_ID="org.t2powertune.gtk"
 APP_VERSION="0.02"
@@ -50,9 +50,25 @@ def palette_css(dark):
     else: window,fg,panel,shadow,line="#f2f2f2","#242424","#e8e8e8","rgba(0,0,0,0.14)","rgba(0,0,0,0.16)"
     return f"window,popover{{font-family:'JetBrains Mono';font-size:11pt;font-weight:400;color:alpha({fg},0.72);}}button,button label,entry,spinbutton,dropdown{{font-size:11pt;font-weight:400;color:alpha({fg},0.72);}}.app-background{{background:{window};color:alpha({fg},0.72);}}.app-background label{{font-size:11pt;font-weight:400;}}.app-background .title-1,.app-background .title-2,.app-background .title-3,.app-background .title-4,.app-background .title,.app-background .heading,windowtitle .title{{color:{fg};font-size:11pt;font-weight:400;}}.app-background .dim-label,windowtitle .subtitle{{color:alpha({fg},0.72);font-size:11pt;font-weight:400;}}.app-background headerbar{{background:@headerbar_bg_color;color:alpha({fg},0.72);}}.unified-box{{background:{panel};color:alpha({fg},0.72);border-radius:12px;padding:14px;}}.sticky-bar{{background:{panel};color:alpha({fg},0.72);padding:9px 18px;}}.sticky-top{{box-shadow:0 5px 12px {shadow};}}.sticky-bottom{{box-shadow:0 -5px 12px {shadow};}}.cstate-cell{{border:1px solid {line};border-radius:7px;padding:3px 6px;font-feature-settings:'tnum';}}.app-background .cstate-zero{{color:#808080;border-color:#808080;}}.app-background .cstate-positive{{color:#3b8132;border-color:#3b8132;}}.donate-link,.donate-link>label{{color:alpha({fg},0.72);font-size:11pt;font-weight:400;}}"
 
+def install_quit_accelerator(app):
+    app_ref = weakref.ref(app)
+    quit_action = Gio.SimpleAction.new("quit", None)
+
+    def quit_application(*_args):
+        application = app_ref()
+        if application is not None:
+            application.quit()
+
+    quit_action.connect("activate", quit_application)
+    app.add_action(quit_action)
+    app.set_accels_for_action("app.quit", ["<Control>q"])
+
+
 class PowerTune(Adw.Application):
     def __init__(self):
-        super().__init__(application_id=APP_ID); self.connect("activate",self.activate)
+        super().__init__(application_id=APP_ID)
+        install_quit_accelerator(self)
+        self.connect("activate",self.activate)
         self.items=[]; self.rows=[]; self.cstate_process=None
     def activate(self,_app):
         self.win=Adw.ApplicationWindow(application=self,title="T2 Power Tune"); self.win.set_default_size(950,780)

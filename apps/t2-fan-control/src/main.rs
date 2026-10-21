@@ -360,6 +360,18 @@ impl AppModel {
     }
 }
 
+fn install_quit_accelerator(app: &gtk4::Application) {
+    let quit_action = gtk4::gio::SimpleAction::new("quit", None);
+    let app_weak = app.downgrade();
+    quit_action.connect_activate(move |_, _| {
+        if let Some(app) = app_weak.upgrade() {
+            app.quit();
+        }
+    });
+    app.add_action(&quit_action);
+    app.set_accels_for_action("app.quit", &["<Control>q"]);
+}
+
 fn main() -> glib::ExitCode {
     if std::env::args().any(|arg| arg == "--daemon") {
         if let Err(error) = daemon_main() {
@@ -374,6 +386,7 @@ fn main() -> glib::ExitCode {
         .application_id(APP_ID)
         .resource_base_path("/org/t2fancontrol/gtk")
         .build();
+    install_quit_accelerator(&app);
     app.connect_activate(build_ui);
     app.run()
 }
